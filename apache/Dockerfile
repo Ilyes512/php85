@@ -10,7 +10,7 @@ ARG PHP_IGBINARY_VERSION=3.2.17RC1
 # Latest version of redis-extension: https://pecl.php.net/package/redis
 ARG PHP_REDIS_VERSION=6.3.0
 # Latest version of amqp-extension: https://pecl.php.net/package/amqp
-ARG PHP_AMQP_VERSION=2.1.2
+# ARG PHP_AMQP_VERSION=2.1.2
 
 ENV SMTPHOST=mail
 ENV SMTPEHLO=localhost
@@ -40,7 +40,7 @@ RUN apt-get update \
         # Dependency of PHP pdo_pgsql-extension
         libpq5 \
         # Dependency of PHP amqp-extension
-        librabbitmq4 \
+        # librabbitmq4 \
         # Dependency of PHP xsl-extension
         libxslt1.1 \
     # Install packages that are needed for building PHP extensions
@@ -63,7 +63,7 @@ RUN apt-get update \
         # Dependency of PHP pdo_pgsql-extension
         libpq-dev \
         # Dependency of PHP amqp-extension
-        librabbitmq-dev \
+        # librabbitmq-dev \
         # Dependency of PHP xsl-extension
         libxslt1-dev \
     # Configure PHP gd-extension
@@ -89,12 +89,12 @@ RUN apt-get update \
     # Optional dependency of PHP redis-extension
     && pecl install "igbinary-$PHP_IGBINARY_VERSION" \
     && pecl install --configureoptions 'enable-redis-igbinary="yes"' "redis-$PHP_REDIS_VERSION" \
-    && pecl install "amqp-$PHP_AMQP_VERSION" \
+    # && pecl install "amqp-$PHP_AMQP_VERSION" \
     && docker-php-ext-enable --ini-name docker-php-ext-zz-custom.ini \
         event \
         igbinary \
         redis \
-        amqp \
+        # amqp \
     && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     # Purge packages that where only needed for building php extensions
     && apt-get purge --assume-yes \
@@ -109,7 +109,7 @@ RUN apt-get update \
         libssl-dev \
         libxml2-dev \
         libpq-dev \
-        librabbitmq-dev \
+        # librabbitmq-dev \
         libxslt1-dev \
     # Cleanup
     && rm -rf /var/www/* \
