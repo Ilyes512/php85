@@ -80,7 +80,6 @@ RUN apt-get update \
         pdo_mysql \
         pdo_pgsql \
         intl \
-        opcache \
         pcntl \
         gd \
         bcmath \
