@@ -1,0 +1,48 @@
+name: Main
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  actions: write
+  packages: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: Ilyes512/github-actions/.github/workflows/build-php.yml@1.0.5
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - os: ubuntu-24.04
+            platform: linux/amd64
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64
+        docker:
+          - dockerfile: fpm/Dockerfile
+            image-name: ghcr.io/${{ github.repository }}
+          - dockerfile: apache/Dockerfile
+            image-name: ghcr.io/${{ github.repository }}/apache
+    with:
+      runs-on: ${{ matrix.runs-on.os }}
+      platform: ${{ matrix.runs-on.platform }}
+      image-name: ${{ matrix.docker.image-name }}
+      dockerfile: ${{ matrix.docker.dockerfile }}
+
+  merge:
+    uses: Ilyes512/github-actions/.github/workflows/merge-php.yml@1.0.5
+    needs: build
+    strategy:
+      matrix:
+        image-name:
+          - ghcr.io/${{ github.repository }}
+          - ghcr.io/${{ github.repository }}/apache
+    with:
+      runs-on: ubuntu-24.04
+      image-name: ${{ matrix.image-name }}
