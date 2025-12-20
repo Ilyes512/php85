@@ -66,9 +66,6 @@ RUN apt-get update \
         librabbitmq-dev \
         # Dependency of PHP xsl-extension
         libxslt1-dev \
-        # Dependency of PHP memcached-extension
-        libmemcached-dev \
-        zlib1g-dev \
     # Configure PHP gd-extension
     && docker-php-ext-configure gd \
         --enable-gd \
