@@ -1,5 +1,5 @@
 # Latest version of PHP base image: https://hub.docker.com/_/php/tags
-FROM php:8.5.1-apache-trixie AS runtime
+FROM php:8.5.2-apache-trixie AS runtime
 
 ARG UNIQUE_ID_FOR_CACHEFROM=runtime
 
