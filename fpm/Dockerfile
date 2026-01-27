@@ -1,5 +1,5 @@
 # Latest version of PHP base image: https://hub.docker.com/_/php/tags
-FROM php:8.5.1-fpm-trixie AS runtime
+FROM php:8.5.2-fpm-trixie AS runtime
 
 ARG UNIQUE_ID_FOR_CACHEFROM=runtime
 
@@ -10,7 +10,7 @@ ARG PHP_IGBINARY_VERSION=3.2.17RC1
 # Latest version of redis-extension: https://pecl.php.net/package/redis
 ARG PHP_REDIS_VERSION=6.3.0
 # Latest version of amqp-extension: https://pecl.php.net/package/amqp
-# ARG PHP_AMQP_VERSION=2.1.2
+ARG PHP_AMQP_VERSION=2.2.0
 
 ENV SMTPHOST=mail
 ENV SMTPEHLO=localhost
@@ -40,7 +40,7 @@ RUN apt-get update \
         # Dependency of PHP pdo_pgsql-extension
         libpq5 \
         # Dependency of PHP amqp-extension
-        # librabbitmq4 \
+        librabbitmq4 \
         # Dependency of PHP xsl-extension
         libxslt1.1 \
     # Install packages that are needed for building PHP extensions
@@ -63,7 +63,7 @@ RUN apt-get update \
         # Dependency of PHP pdo_pgsql-extension
         libpq-dev \
         # Dependency of PHP amqp-extension
-        # librabbitmq-dev \
+        librabbitmq-dev \
         # Dependency of PHP xsl-extension
         libxslt1-dev \
     # Configure PHP gd-extension
@@ -127,7 +127,7 @@ ARG UNIQUE_ID_FOR_CACHEFROM=builder
 # Latest version of Phive: https://api.github.com/repos/phar-io/phive/releases/latest
 ARG PHIVE_VERSION=0.16.0
 # Latest version of Composer: https://getcomposer.org/download
-ARG COMPOSER_VERSION=2.9.2
+ARG COMPOSER_VERSION=2.9.4
 # Latest version of Xdebug: https://github.com/xdebug/xdebug/tags or https://pecl.php.net/package/xdebug
 ARG XDEBUG_VERSION=3.5.0
 # Latest version of pcov: https://github.com/krakjoe/pcov/tags or https://pecl.php.net/package/pcov
