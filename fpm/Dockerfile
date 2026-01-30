@@ -89,12 +89,12 @@ RUN apt-get update \
     # Optional dependency of PHP redis-extension
     && pecl install "igbinary-$PHP_IGBINARY_VERSION" \
     && pecl install --configureoptions 'enable-redis-igbinary="yes"' "redis-$PHP_REDIS_VERSION" \
-    # && pecl install "amqp-$PHP_AMQP_VERSION" \
+    && pecl install "amqp-$PHP_AMQP_VERSION" \
     && docker-php-ext-enable --ini-name docker-php-ext-zz-custom.ini \
         event \
         igbinary \
         redis \
-        # amqp \
+        amqp \
     && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     # Purge packages that where only needed for building php extensions
     && apt-get purge --assume-yes \
