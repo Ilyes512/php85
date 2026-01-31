@@ -3,19 +3,22 @@ FROM php:8.5.2-apache-trixie AS runtime
 
 ARG UNIQUE_ID_FOR_CACHEFROM=runtime
 
-# Latest version of event-extension: https://pecl.php.net/package/event
-ARG PHP_EVENT_VERSION=3.1.4
-# Latest version of igbinary-extension: https://pecl.php.net/package/igbinary
+# Latest version of event-extension: https://packagist.org/packages/osmanov/pecl-event
+ARG PHP_EVENT_VERSION=dev-master#daa2b07
+# Latest version of igbinary-extension: https://packagist.org/packages/igbinary/igbinary
 ARG PHP_IGBINARY_VERSION=3.2.17RC1
-# Latest version of redis-extension: https://pecl.php.net/package/redis
+# Latest version of redis-extension: https://packagist.org/packages/phpredis/phpredis
 ARG PHP_REDIS_VERSION=6.3.0
-# Latest version of amqp-extension: https://pecl.php.net/package/amqp
+# Latest version of amqp-extension: https://packagist.org/packages/php-amqp/php-amqp
 ARG PHP_AMQP_VERSION=2.2.0
 
 ENV SMTPHOST=mail
 ENV SMTPEHLO=localhost
 
 WORKDIR /var/www
+
+# Install PHP Installer for Extensions (PIE)
+COPY --from=ghcr.io/php/pie:1.3.7-bin /pie /usr/bin/pie
 
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends \
@@ -24,6 +27,7 @@ RUN apt-get update \
         openssl \
         curl \
         msmtp-mta \
+        unzip \
         # Dependency of the PHP intl-extension
         libicu76 \
         # Dependency of the PHP gd-extension
@@ -85,16 +89,11 @@ RUN apt-get update \
         xsl \
         # Dependency of PHP event-extension
         sockets \
-    && pecl install "event-$PHP_EVENT_VERSION" \
-    # Optional dependency of PHP redis-extension
-    && pecl install "igbinary-$PHP_IGBINARY_VERSION" \
-    && pecl install --configureoptions 'enable-redis-igbinary="yes"' "redis-$PHP_REDIS_VERSION" \
-    && pecl install "amqp-$PHP_AMQP_VERSION" \
-    && docker-php-ext-enable --ini-name docker-php-ext-zz-custom.ini \
-        event \
-        igbinary \
-        redis \
-        amqp \
+    && pie install --with-php-config=$(which php-config) osmanov/pecl-event:$PHP_EVENT_VERSION \
+    && pie install --with-php-config=$(which php-config) igbinary/igbinary:$PHP_IGBINARY_VERSION \
+    && pie install --with-php-config=$(which php-config) php-amqp/php-amqp:$PHP_AMQP_VERSION \
+    && pie install --with-php-config=$(which php-config) \
+        phpredis/phpredis:$PHP_REDIS_VERSION --enable-redis-igbinary \
     && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     # Purge packages that where only needed for building php extensions
     && apt-get purge --assume-yes \
@@ -128,9 +127,9 @@ ARG UNIQUE_ID_FOR_CACHEFROM=builder
 ARG PHIVE_VERSION=0.16.0
 # Latest version of Composer: https://getcomposer.org/download
 ARG COMPOSER_VERSION=2.9.4
-# Latest version of Xdebug: https://github.com/xdebug/xdebug/tags or https://pecl.php.net/package/xdebug
+# Latest version of Xdebug: https://packagist.org/packages/xdebug/xdebug
 ARG XDEBUG_VERSION=3.5.0
-# Latest version of pcov: https://github.com/krakjoe/pcov/tags or https://pecl.php.net/package/pcov
+# Latest version of pcov: https://packagist.org/packages/pecl/pcov
 ARG PCOV_VERSION=1.0.12
 
 RUN apt-get update \
@@ -139,7 +138,6 @@ RUN apt-get update \
         $PHPIZE_DEPS \
         vim \
         git \
-        unzip \
         sqlite3 \
         wait-for-it \
         # Needed for phive:
@@ -154,12 +152,9 @@ RUN apt-get update \
     # Install Composer using Phive
     && phive install --global composer:$COMPOSER_VERSION --trust-gpg-keys CBB3D576F2A0946F \
     && rm -rf /root/.phive \
-    # Install Xdebug PHP extension
-    && pecl install "xdebug-$XDEBUG_VERSION" \
-    && docker-php-ext-enable xdebug \
-    # Install pcov PHP extension
-    && pecl install "pcov-$PCOV_VERSION" \
-    && docker-php-ext-enable pcov \
+    # Install Xdebug and pcov PHP extensions
+    && pie install --with-php-config=$(which php-config) xdebug/xdebug:$XDEBUG_VERSION \
+    && pie install --with-php-config=$(which php-config) pecl/pcov:$PCOV_VERSION \
     && cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
     # Cleanup
     && apt-get purge --assume-yes $PHPIZE_DEPS \
