@@ -108,7 +108,7 @@ RUN apt-get update \
         libssl-dev \
         libxml2-dev \
         libpq-dev \
-        # librabbitmq-dev \
+        librabbitmq-dev \
         libxslt1-dev \
     # Cleanup
     && rm -rf /var/www/* \
