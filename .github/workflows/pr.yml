@@ -15,7 +15,7 @@ concurrency:
 jobs:
   check:
     name: Dockerfiles match template
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -66,5 +66,5 @@ jobs:
           - ghcr.io/${{ github.repository }}/apache
           - ghcr.io/${{ github.repository }}/frankenphp
     with:
-      runs-on: ubuntu-24.04
+      runs-on: blacksmith-2vcpu-ubuntu-2404
       image-name: ${{ matrix.image-name }}
